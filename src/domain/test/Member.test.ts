@@ -14,6 +14,35 @@ describe("Member", () => {
     });
   });
 
+  test("el descuento no puede ser menor a 0", () => {
+    expect(() => {
+      member.discount = -1;
+    }).throw();
+  });
+  // la razon de ()=>{} arrow function en los throw() es porque
+  //JavaScript primero evalúa lo que está entre paréntesis para pasárselo a expect. Al hacer m.discount = -1, el setter tira el error ahí mismo,
+  //  y expect ni siquiera llega a ejecutarse. El error queda suelto, el test explota y Vitest lo marca como fallido.
+  test("el descuento no puede ser mayor a 100", () => {
+    expect(() => {
+      member.discount = 101;
+    }).throw();
+  });
+  //Sin () =>: el error ocurre antes de que expect pueda atraparlo.
+  //Con () =>: expect ejecuta el código y atrapa el error él mismo.
+
+  test("el descuento no puede ser un numero que no sea un entero", () => {
+    expect(() => {
+      member.discount = 10.11;
+    }).throw();
+  });
+
+  test("devuelve el descuento junto a los otros datos ", () => {
+    member.discount = 10;
+    expect(member.toString()).toBe(
+      "Ana Pérez (doc. 12345678) - Plan Completo - $1500 - Descuento: 10%",
+    );
+  });
+
   test("store name", () => {
     expect(member.name).toBe("Ana Pérez");
   });

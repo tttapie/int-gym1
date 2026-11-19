@@ -18,7 +18,7 @@ export class Member {
   private _documentId: string = "";
   private _plan: Plan = "basic";
   private _monthlyFee: number = 0;
-  private _discount: number = 0;
+  private _discount: number = 0; // discount empieza en 0
 
   constructor(data: MemberData) {
     this.name = data.name;
@@ -78,10 +78,19 @@ export class Member {
   }
 
   set discount(_value: number) {
-    // TODO: validar y guardar el descuento
+    if (!Number.isInteger(_value) || _value < 0 || _value > 100) {
+      // isInteger devuelve true si es un entero
+      throw new Error("valor fuera de rango(0 y 100)");
+    }
+    this._discount = _value;
   }
 
   toString(): string {
-    return `${this.name} (doc. ${this.documentId}) - Plan ${PLAN_LABELS[this.plan]} - $${this.monthlyFee}`;
+    const info = `${this.name} (doc. ${this.documentId}) - Plan ${PLAN_LABELS[this.plan]} - $${this.monthlyFee}`;
+
+    if (this.discount > 0) {
+      return `${info} - Descuento: ${this.discount}%`;
+    }
+    return info;
   }
 }
