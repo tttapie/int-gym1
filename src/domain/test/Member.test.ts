@@ -36,6 +36,23 @@ describe("Member", () => {
     }).throw();
   });
 
+  test("el descuento vale 0 por defecto", () => {
+    expect(member.discount).toBe(0);
+  });
+
+  test("acepta los limites 0 y 100", () => {
+    member.discount = 100;
+    expect(member.discount).toBe(100);
+    member.discount = 0;
+    expect(member.discount).toBe(0);
+  });
+
+  test("el descuento no puede ser NaN", () => {
+    expect(() => {
+      member.discount = Number.NaN;
+    }).throw();
+  });
+
   test("devuelve el descuento junto a los otros datos ", () => {
     member.discount = 10;
     expect(member.toString()).toBe(

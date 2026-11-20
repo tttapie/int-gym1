@@ -80,7 +80,7 @@ export class Member {
   set discount(_value: number) {
     if (!Number.isInteger(_value) || _value < 0 || _value > 100) {
       // isInteger devuelve true si es un entero
-      throw new Error("valor fuera de rango(0 y 100)");
+      throw new Error("El descuento debe ser un entero entre 0 y 100.");
     }
     this._discount = _value;
   }

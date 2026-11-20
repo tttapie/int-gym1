@@ -11,6 +11,9 @@ const inpDocument = document.getElementById(
 ) as HTMLInputElement | null;
 const selPlan = document.getElementById("sel-plan") as HTMLSelectElement | null;
 const inpFee = document.getElementById("inp-fee") as HTMLInputElement | null;
+const inpDiscount = document.getElementById(
+  "inp-discount",
+) as HTMLInputElement | null;
 const btnAdd = document.getElementById("btn-add") as HTMLButtonElement | null;
 const errorContainer = document.getElementById(
   "error-container",
@@ -33,12 +36,16 @@ const inpTotalMembers = document.getElementById(
 const inpTotalFees = document.getElementById(
   "inp-total-fees",
 ) as HTMLInputElement | null;
+const inpTotalDiscounted = document.getElementById(
+  "inp-total-discounted",
+) as HTMLInputElement | null;
 
 function clearInputs(): void {
-  if (inpName && inpDocument && inpFee) {
+  if (inpName && inpDocument && inpFee && inpDiscount) {
     inpName.value = "";
     inpDocument.value = "";
     inpFee.value = "";
+    inpDiscount.value = "";
   }
 }
 
@@ -73,7 +80,15 @@ function createFeeEditor(member: Member): HTMLDivElement {
   button.className = "btn btn-outline-secondary";
   button.textContent = "Guardar cuota";
   button.addEventListener("click", () => {
-    // TODO: editar la cuota del socio con el valor de input
+    try {
+      memberList.updateFee(member.documentId, Number(input.value));
+      input.classList.remove("is-invalid");
+      updateList();
+      updateTotals();
+    } catch {
+      // Si la cuota no es valida updateFee lanza un error y se marca el campo
+      input.classList.add("is-invalid");
+    }
   });
   group.append(input, button);
   return group;
@@ -89,9 +104,13 @@ function createCard(member: Member): HTMLDivElement {
   const title = document.createElement("h5");
   title.className = "card-title";
   title.textContent = member.name;
+  // El plan se muestra como badge al lado del nombre
+  const badge = document.createElement("span");
+  badge.className = "badge text-bg-secondary ms-2 align-middle";
+  badge.textContent = PLAN_LABELS[member.plan];
+  title.append(badge);
   const lines = [
     `Documento: ${member.documentId}`,
-    `Plan: ${PLAN_LABELS[member.plan]}`,
     `Cuota mensual: $${member.monthlyFee}`,
   ];
   if (member.discount > 0) {
@@ -116,9 +135,10 @@ function updateList(): void {
 }
 
 function updateTotals(): void {
-  if (inpTotalMembers && inpTotalFees) {
+  if (inpTotalMembers && inpTotalFees && inpTotalDiscounted) {
     inpTotalMembers.value = String(memberList.getItems().length);
     inpTotalFees.value = String(memberList.totalFees());
+    inpTotalDiscounted.value = String(memberList.totalDiscounted());
   }
 }
 
@@ -134,6 +154,15 @@ loadMockData();
 updateList();
 updateTotals();
 
+// Si el campo de descuento queda vacio se toma 0
+function readDiscount(): number {
+  let discount = 0;
+  if (inpDiscount && inpDiscount.value.trim() !== "") {
+    discount = Number(inpDiscount.value);
+  }
+  return discount;
+}
+
 if (btnAdd && inpName && inpDocument && selPlan && inpFee) {
   btnAdd.addEventListener("click", () => {
     try {
@@ -143,6 +172,7 @@ if (btnAdd && inpName && inpDocument && selPlan && inpFee) {
         plan: selPlan.value as Plan,
         monthlyFee: Number(inpFee.value),
       });
+      member.discount = readDiscount();
       memberList.add(member);
       hideError();
       clearInputs();

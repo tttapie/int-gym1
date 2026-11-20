@@ -13,18 +13,18 @@ export class MemberList {
     this.#items.push(item);
   }
 
- updateFee(documentId: string, fee: number): void {
-  let encontrado = false;
-  for (const member of this.#items) {
-    if (member.documentId === documentId) {
-      member.monthlyFee = fee;
-      encontrado = true;
+  updateFee(documentId: string, fee: number): void {
+    let encontrado = false;
+    for (const member of this.#items) {
+      if (member.documentId === documentId) {
+        member.monthlyFee = fee;
+        encontrado = true;
+      }
+    }
+    if (!encontrado) {
+      throw new Error(`El socio con el documento ${documentId} no existe.`);
     }
   }
-  if (!encontrado) {
-    throw new Error(`El socio con el documento ${documentId} no existe.`);
-  }
-}
 
   getItems(): readonly Member[] {
     return [...this.#items];
